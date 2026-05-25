@@ -14,6 +14,53 @@
 - Test/Quality: pytest, ruff
 - Frontend: React, TypeScript, Vite, Monaco Editor, lucide-react
 
+## 全流程跑通
+
+下面命令默认在 Windows PowerShell 中执行。
+
+1. 进入项目目录：
+
+```powershell
+cd D:\Algorithm-Training-Question-Bank-and-Online-Evaluation-Tutoring-System
+```
+
+2. 启动后端、MySQL、Redis 和判题 Worker：
+
+```powershell
+docker compose up -d --build
+```
+
+3. 初始化示例题：
+
+```powershell
+docker compose exec -T api python -m app.seed
+```
+
+4. 启动前端网站：
+
+```powershell
+cd frontend
+npm install
+npm run dev -- --host 127.0.0.1 --port 5173
+```
+
+5. 打开本地网站：
+
+```text
+http://127.0.0.1:5173
+```
+
+6. 在页面中选择 `A + B Problem`，直接点击“提交评测”。如果结果显示 `通过` 且得分 `100`，说明前端、后端、数据库、Redis 队列和判题 Worker 已经完整跑通。
+
+7. 停止项目服务：
+
+```powershell
+cd D:\Algorithm-Training-Question-Bank-and-Online-Evaluation-Tutoring-System
+docker compose down
+```
+
+前端开发服务在运行 `npm run dev` 的终端中按 `Ctrl + C` 停止。
+
 ## 已实现功能
 
 - 健康检查接口：`GET /health`
