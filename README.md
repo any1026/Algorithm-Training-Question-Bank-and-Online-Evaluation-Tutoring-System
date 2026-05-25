@@ -1,6 +1,6 @@
 # Algorithm Training Question Bank and Online Evaluation Tutoring System
 
-一个面向算法训练的题库、提交评测和学习辅导后端项目。当前阶段已经完成后端 MVP：题目管理、测试用例管理、代码提交、Redis 判题队列、Python/C++ 判题 Worker、提交统计、Docker Compose 一键启动和自动化测试。
+一个面向算法训练的题库、提交评测和学习辅导项目。当前阶段已经完成本地版前后端 MVP：题目管理、测试用例管理、代码提交、Redis 判题队列、Python/C++ 判题 Worker、提交统计、React 题库工作台、Docker Compose 一键启动和自动化测试。
 
 > 说明：当前判题模块用于本地学习和项目展示，已经具备基本隔离和超时控制，但还不是面向公网不可信代码的生产级沙箱。后续如果要公开部署，需要继续加入容器级/系统级资源隔离、权限收敛和审计。
 
@@ -12,6 +12,7 @@
 - Judge Worker: Python subprocess, C++17/g++
 - DevOps: Docker, Docker Compose
 - Test/Quality: pytest, ruff
+- Frontend: React, TypeScript, Vite, Monaco Editor, lucide-react
 
 ## 已实现功能
 
@@ -24,6 +25,7 @@
 - 判题结果：`PENDING`, `RUNNING`, `AC`, `WA`, `CE`, `RE`, `TLE`
 - 支持语言：`python`, `cpp`
 - 种子数据：内置 A + B Problem 示例题
+- 本地前端：题库筛选、题目详情、代码编辑、提交评测、结果轮询
 
 ## 目录结构
 
@@ -40,6 +42,7 @@
 │       ├── worker/       # Redis judge worker
 │       ├── main.py
 │       └── seed.py
+├── frontend/             # React + Vite local web app
 ├── scripts/
 ├── tests/
 ├── docker-compose.yml
@@ -59,6 +62,7 @@ docker compose up -d --build
 
 - API: `http://localhost:8000`
 - Swagger 文档: `http://localhost:8000/docs`
+- Frontend: `http://127.0.0.1:5173`
 - MySQL: `localhost:3307`
 - Redis: `localhost:6380`
 
@@ -73,6 +77,20 @@ docker compose ps
 
 ```powershell
 docker compose exec -T api python -m app.seed
+```
+
+启动前端：
+
+```powershell
+cd frontend
+npm install
+npm run dev -- --host 127.0.0.1 --port 5173
+```
+
+打开本地网站：
+
+```text
+http://127.0.0.1:5173
 ```
 
 ## 接口示例
@@ -150,6 +168,9 @@ py -3.12 -m venv .venv
 ```powershell
 .\.venv\Scripts\python.exe -m pytest -q
 .\.venv\Scripts\python.exe -m ruff check backend tests
+cd frontend
+npm run lint
+npm run build
 ```
 
 如果想直接用本机 Python 运行 API，需要先启动 MySQL 和 Redis，并准备 `.env`：
