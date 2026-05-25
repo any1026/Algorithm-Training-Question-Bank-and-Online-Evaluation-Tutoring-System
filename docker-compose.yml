@@ -1,0 +1,67 @@
+services:
+  mysql:
+    image: docker.m.daocloud.io/library/mysql:8.0
+    command: ["--default-authentication-plugin=mysql_native_password"]
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_DATABASE: oj_training
+      MYSQL_USER: oj_user
+      MYSQL_PASSWORD: oj_password
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -uroot -proot_password"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: docker.m.daocloud.io/library/redis:7-alpine
+    command: ["redis-server", "--appendonly", "yes"]
+    ports:
+      - "6380:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  api:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    env_file:
+      - .env.docker
+    ports:
+      - "8000:8000"
+    volumes:
+      - judge_tmp:/app/tmp/judge
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  worker:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    command: ["python", "-m", "app.worker.judge_worker"]
+    env_file:
+      - .env.docker
+    volumes:
+      - judge_tmp:/app/tmp/judge
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+volumes:
+  mysql_data:
+  redis_data:
+  judge_tmp:
